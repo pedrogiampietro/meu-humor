@@ -10,6 +10,8 @@ export default function RootLayout() {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="SelectEmotions" options={{ headerShown: false }} />
+      <Stack.Screen name="SelectReasons" options={{ headerShown: false }} />
+      <Stack.Screen name="AddNotes" options={{ headerShown: false }} />
     </Stack>
   );
 }

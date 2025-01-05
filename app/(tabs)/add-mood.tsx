@@ -29,7 +29,7 @@ const CENTER_INDEX = 2; // Índice do meio (considerando 5 emojis)
 export default function AddMood() {
   const [moodsOrder, setMoodsOrder] = useState(MOODS);
 
-  const navigation = useNavigation();
+  const navigate = useNavigation();
 
   const handleMoodSelect = (mood, currentIndex) => {
     if (currentIndex !== CENTER_INDEX) {
@@ -104,7 +104,7 @@ export default function AddMood() {
 
       <TouchableOpacity
         style={styles.continueButton}
-        onPress={() => navigation.navigate('SelectEmotions')}>
+        onPress={() => navigate.navigate('SelectEmotions')}>
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>
     </LinearGradient>
