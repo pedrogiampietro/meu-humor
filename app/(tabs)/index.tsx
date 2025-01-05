@@ -65,20 +65,6 @@ export default function App() {
             <MoodBar height={20} time="20:10" emoji="😡" />
           </View>
         </View>
-
-        {/* Current Mood */}
-        <View style={styles.currentMoodContainer}>
-          <View style={styles.currentMoodHeader}>
-            <View style={styles.currentMoodEmoji}>
-              <Text style={styles.largeEmoji}>😡</Text>
-              <Text style={styles.moodTime}>20:10</Text>
-            </View>
-            <TouchableOpacity>
-              <Text style={styles.editButton}>Edit</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.moodDescription}>You felt Disappointed, Confused</Text>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -204,29 +190,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
     color: '#666',
-  },
-  currentMoodContainer: {
-    margin: 20,
-  },
-  currentMoodHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  currentMoodEmoji: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  largeEmoji: {
-    fontSize: 24,
-    marginRight: 10,
-  },
-  editButton: {
-    color: '#7C4DFF',
-    fontSize: 16,
-  },
-  moodDescription: {
-    fontSize: 16,
   },
 });
