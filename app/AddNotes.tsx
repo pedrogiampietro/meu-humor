@@ -10,10 +10,13 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import SuccessModal from './SuccessModal';
+import { useStore } from '../store';
 
 export default function AddNotes() {
   const [note, setNote] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const setNoteInStore = useStore((state) => state.setNote);
+  const saveDayData = useStore((state) => state.saveDayData);
 
   const onClose = () => {
     Alert.alert('Close', 'The notes screen was closed.');
@@ -21,6 +24,8 @@ export default function AddNotes() {
 
   const onSave = () => {
     if (note.trim()) {
+      setNoteInStore(note);
+      saveDayData();
       setShowSuccessModal(true);
     } else {
       Alert.alert('Note is empty', 'Please write something before saving.');

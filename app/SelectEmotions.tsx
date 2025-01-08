@@ -11,21 +11,38 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useStore } from 'store';
 
-const RECENTLY_USED = [
-  { id: 1, image: require('assets/icons/woozy-face.png'), name: 'Confused' },
-  { id: 2, image: require('assets/icons/star-struck.png'), name: 'Excited' },
-  { id: 3, image: require('assets/icons/winking-face-with-tongue.png'), name: 'Cool' },
-  { id: 4, image: require('assets/icons/grinning-face-with-sweat-2.png'), name: 'Surprised' },
-  { id: 5, image: require('assets/icons/smiling-face.png'), name: 'Peaceful' },
-  { id: 6, image: require('assets/icons/hugging-face.png'), name: 'Amazed' },
+// Todos os ícones mapeados
+const ALL_EMOTIONS = [
+  { id: 1, image: require('assets/icons/angry-face-with-horns.png'), name: 'Angry' },
+  { id: 2, image: require('assets/icons/anxious-face-with-sweat.png'), name: 'Anxious' },
+  { id: 3, image: require('assets/icons/confused-face.png'), name: 'Confused' },
+  { id: 4, image: require('assets/icons/disappointed-face.png'), name: 'Disappointed' },
+  { id: 5, image: require('assets/icons/face-screaming-in-fear.png'), name: 'Fear' },
+  { id: 6, image: require('assets/icons/face-with-steam-from-nose.png'), name: 'Frustrated' },
+  { id: 7, image: require('assets/icons/face-with-tears-of-joy.png'), name: 'Happy' },
+  { id: 8, image: require('assets/icons/grinning-face-with-sweat-2.png'), name: 'Nervous' },
+  { id: 9, image: require('assets/icons/grinning-face-with-sweat.png'), name: 'Awkward' },
+  { id: 10, image: require('assets/icons/hot-face.png'), name: 'Overwhelmed' },
+  { id: 11, image: require('assets/icons/hugging-face.png'), name: 'Warm' },
+  { id: 12, image: require('assets/icons/nauseated-face.png'), name: 'Nauseated' },
+  { id: 13, image: require('assets/icons/neutral-face.png'), name: 'Neutral' },
+  { id: 14, image: require('assets/icons/pouting-face.png'), name: 'Pouting' },
+  { id: 15, image: require('assets/icons/smiling-face-with-halo.png'), name: 'Innocent' },
+  { id: 16, image: require('assets/icons/smiling-face-with-heart-eyes.png'), name: 'In Love' },
+  { id: 17, image: require('assets/icons/smiling-face-with-hearts.png'), name: 'Affectionate' },
+  { id: 18, image: require('assets/icons/smiling-face.png'), name: 'Content' },
+  { id: 19, image: require('assets/icons/star-struck.png'), name: 'Excited' },
+  { id: 20, image: require('assets/icons/winking-face-with-tongue.png'), name: 'Playful' },
+  { id: 21, image: require('assets/icons/woozy-face.png'), name: 'Dizzy' },
 ];
 
-const ALL_EMOTIONS = [
-  { id: 7, image: require('assets/icons/nauseated-face.png'), name: 'Aww' },
-  { id: 8, image: require('assets/icons/face-with-tears-of-joy.png'), name: 'Happy' },
-  { id: 9, image: require('assets/icons/winking-face-with-tongue.png'), name: 'Cool' },
-  { id: 10, image: require('assets/icons/anxious-face-with-sweat.png'), name: 'Stressed' },
+const RECENTLY_USED = [
+  { id: 7, image: require('../assets/icons/face-with-tears-of-joy.png'), name: 'Happy' },
+  { id: 19, image: require('../assets/icons/star-struck.png'), name: 'Excited' },
+  { id: 11, image: require('../assets/icons/hugging-face.png'), name: 'Warm' },
+  { id: 1, image: require('../assets/icons/angry-face-with-horns.png'), name: 'Angry' },
 ];
 
 export default function SelectEmotions({ onClose, onContinue }) {
@@ -33,6 +50,7 @@ export default function SelectEmotions({ onClose, onContinue }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const navigate = useNavigation();
+  const setEmotions = useStore((state) => state.setEmotions);
 
   const toggleEmotion = (emotion) => {
     const newSelected = new Set(selectedEmotions);
@@ -58,6 +76,11 @@ export default function SelectEmotions({ onClose, onContinue }) {
         <Text style={styles.emotionName}>{emotion.name}</Text>
       </TouchableOpacity>
     );
+  };
+
+  const handleContinue = () => {
+    setEmotions([...selectedEmotions]);
+    navigate.navigate('SelectReasons');
   };
 
   return (
@@ -132,7 +155,7 @@ export default function SelectEmotions({ onClose, onContinue }) {
           styles.continueButton,
           selectedEmotions.size === 0 && styles.continueButtonDisabled,
         ]}
-        onPress={() => navigate.navigate('SelectReasons')}
+        onPress={handleContinue}
         disabled={selectedEmotions.size === 0}>
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>

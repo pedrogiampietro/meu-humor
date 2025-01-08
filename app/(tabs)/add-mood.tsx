@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Image, ImageBackground } from
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { useStore } from '../../store';
 
 const MOODS = [
   { id: 1, image: require('assets/icons/pouting-face.png'), name: 'Angry', bgColor: '#FF6B6B' },
@@ -30,6 +31,7 @@ export default function AddMood() {
   const [moodsOrder, setMoodsOrder] = useState(MOODS);
 
   const navigate = useNavigation();
+  const setMood = useStore((state) => state.setMood);
 
   const handleMoodSelect = (mood, currentIndex) => {
     if (currentIndex !== CENTER_INDEX) {
@@ -44,6 +46,7 @@ export default function AddMood() {
       const reorderedMoods = [...leftSide, selectedMood, ...rightSide];
       setMoodsOrder(reorderedMoods);
     }
+    setMood(mood);
   };
 
   const renderMoodItem = (mood, index) => {

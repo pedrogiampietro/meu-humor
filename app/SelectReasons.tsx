@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useStore } from '../store';
 
 const RECENTLY_USED_REASONS = [
   { id: 1, name: 'Family' },
@@ -41,6 +42,7 @@ export default function SelectReasons({ onClose, onContinue }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const navigate = useNavigation();
+  const setReasons = useStore((state) => state.setReasons);
 
   const toggleReason = (reason) => {
     const newSelected = new Set(selectedReasons);
@@ -65,6 +67,11 @@ export default function SelectReasons({ onClose, onContinue }) {
         </Text>
       </TouchableOpacity>
     );
+  };
+
+  const handleContinue = () => {
+    setReasons([...selectedReasons]);
+    navigate.navigate('AddNotes');
   };
 
   return (
@@ -136,7 +143,7 @@ export default function SelectReasons({ onClose, onContinue }) {
       {/* Continue Button */}
       <TouchableOpacity
         style={[styles.continueButton, selectedReasons.size === 0 && styles.continueButtonDisabled]}
-        onPress={() => navigate.navigate('AddNotes')}
+        onPress={handleContinue}
         disabled={selectedReasons.size === 0}>
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>

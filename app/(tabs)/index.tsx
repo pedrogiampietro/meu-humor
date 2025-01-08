@@ -1,25 +1,104 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Mapeamento dos ícones de humor para os arquivos de imagem
+export const emojiMap = {
+  1: require('assets/icons/angry-face-with-horns.png'),
+  2: require('assets/icons/anxious-face-with-sweat.png'),
+  3: require('assets/icons/confused-face.png'),
+  4: require('assets/icons/disappointed-face.png'),
+  5: require('assets/icons/face-screaming-in-fear.png'),
+  6: require('assets/icons/face-with-steam-from-nose.png'),
+  7: require('assets/icons/face-with-tears-of-joy.png'),
+  8: require('assets/icons/grinning-face-with-sweat-2.png'),
+  9: require('assets/icons/grinning-face-with-sweat.png'),
+  10: require('assets/icons/hot-face.png'),
+  11: require('assets/icons/hugging-face.png'),
+  12: require('assets/icons/nauseated-face.png'),
+  13: require('assets/icons/neutral-face.png'),
+  14: require('assets/icons/pouting-face.png'),
+  15: require('assets/icons/smiling-face-with-halo.png'),
+  16: require('assets/icons/smiling-face-with-heart-eyes.png'),
+  17: require('assets/icons/smiling-face-with-hearts.png'),
+  18: require('assets/icons/smiling-face.png'),
+  19: require('assets/icons/star-struck.png'),
+  20: require('assets/icons/winking-face-with-tongue.png'),
+  21: require('assets/icons/woozy-face.png'),
+};
+
+// Componente DayItem
 const DayItem = ({ day, date, isSelected, emoji }) => (
   <TouchableOpacity style={[styles.dayItem, isSelected && styles.selectedDay]}>
     <Text style={[styles.dayText, isSelected && styles.selectedDayText]}>{day}</Text>
     <Text style={[styles.dateText, isSelected && styles.selectedDayText]}>{date}</Text>
-    <Text style={styles.emoji}>{emoji}</Text>
+    {emoji ? (
+      <Image source={emoji} style={styles.emojiImage} />
+    ) : (
+      <Text style={styles.noEmojiText}>-</Text> // Placeholder caso não haja emoji
+    )}
   </TouchableOpacity>
 );
 
+// Componente MoodBar
 const MoodBar = ({ height, time, emoji }) => (
   <View style={styles.moodBarContainer}>
     <View style={[styles.moodBar, { height }]}>
-      <Text style={styles.moodEmoji}>{emoji}</Text>
+      {emoji ? <Image source={emoji} style={styles.emojiImage} /> : null}
     </View>
     <Text style={styles.moodTime}>{time}</Text>
   </View>
 );
 
+// Função para obter a semana atual
+const getCurrentWeek = () => {
+  const currentDate = new Date();
+  const startOfWeek = currentDate.getDate() - currentDate.getDay();
+  const week = [];
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(currentDate.setDate(startOfWeek + i));
+    week.push({
+      day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+      date: date.getDate(),
+      emoji: null, // Inicialmente sem emoji
+    });
+  }
+
+  return week;
+};
+
+// Componente principal App
 export default function App() {
+  const [dayData, setDayData] = useState(null);
+  const [weekData, setWeekData] = useState(getCurrentWeek());
+
+  useEffect(() => {
+    const fetchDayData = async () => {
+      const data = await AsyncStorage.getItem('dayData');
+
+      console.log('data ->', data);
+
+      if (data) {
+        const parsedData = JSON.parse(data);
+        setDayData(parsedData);
+
+        const updatedWeekData = weekData.map((day) => {
+          if (day.date === new Date(parsedData.date).getDate()) {
+            const moodEmoji = emojiMap[parsedData.mood.image] || emojiMap[13]; // Emoji neutro como fallback
+            return { ...day, emoji: moodEmoji };
+          }
+          return day;
+        });
+
+        setWeekData(updatedWeekData);
+      }
+    };
+
+    fetchDayData();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -34,13 +113,15 @@ export default function App() {
 
         {/* Calendar */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.calendar}>
-          <DayItem day="Thu" date="1" emoji="😊" />
-          <DayItem day="Fri" date="2" emoji="🙂" />
-          <DayItem day="Sat" date="3" emoji="😡" />
-          <DayItem day="Sun" date="4" emoji="😍" isSelected={true} />
-          <DayItem day="Mon" date="5" emoji="" />
-          <DayItem day="Tue" date="6" emoji="" />
-          <DayItem day="Wed" date="7" emoji="" />
+          {weekData.map((day, index) => (
+            <DayItem
+              key={index}
+              day={day.day}
+              date={day.date}
+              emoji={day.emoji}
+              isSelected={day.date === new Date().getDate()}
+            />
+          ))}
         </ScrollView>
 
         {/* Check-in Card */}
@@ -58,11 +139,16 @@ export default function App() {
         <View style={styles.moodChartContainer}>
           <Text style={styles.moodChartTitle}>Mood chart</Text>
           <View style={styles.moodChart}>
-            <MoodBar height={120} time="10:08" emoji="😍" />
-            <MoodBar height={20} time="12:10" emoji="😡" />
-            <MoodBar height={60} time="14:40" emoji="🙂" />
-            <MoodBar height={40} time="18:30" emoji="😔" />
-            <MoodBar height={20} time="20:10" emoji="😡" />
+            {dayData &&
+              dayData.moodChart &&
+              dayData.moodChart.map((mood, index) => (
+                <MoodBar
+                  key={index}
+                  height={mood.height}
+                  time={mood.time}
+                  emoji={emojiMap[dayData.mood.image] || emojiMap[13]} // Emoji neutro como fallback
+                />
+              ))}
           </View>
         </View>
       </ScrollView>
@@ -126,8 +212,15 @@ const styles = StyleSheet.create({
   selectedDayText: {
     color: 'white',
   },
-  emoji: {
+  emojiImage: {
+    width: 32,
+    height: 32,
+    marginTop: 8,
+    resizeMode: 'contain',
+  },
+  noEmojiText: {
     fontSize: 16,
+    color: '#aaa',
   },
   checkInCard: {
     backgroundColor: '#FFE4E4',
@@ -182,9 +275,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingTop: 5,
-  },
-  moodEmoji: {
-    fontSize: 16,
   },
   moodTime: {
     fontSize: 12,
