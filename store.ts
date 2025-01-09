@@ -1,7 +1,7 @@
 import create from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const useStore = create((set) => ({
+const useStore = create((set, get) => ({
   mood: null,
   emotions: [],
   reasons: [],
@@ -10,26 +10,31 @@ const useStore = create((set) => ({
   setEmotions: (emotions) => set({ emotions }),
   setReasons: (reasons) => set({ reasons }),
   setNote: (note) => set({ note }),
+
+  // Função para salvar os dados do dia
   saveDayData: async () => {
-    set((state) => {
-      const currentDate = new Date();
-      const dayData = {
-        mood: state.mood,
-        emotions: state.emotions,
-        reasons: state.reasons,
-        note: state.note,
-        date: currentDate.toISOString(),
-        moodChart: [
-          {
-            height: 100, // Exemplo de altura, pode ser ajustado conforme necessário
-            time: currentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            emoji: state.mood.emoji,
-          },
-        ],
-      };
-      AsyncStorage.setItem('dayData', JSON.stringify(dayData));
-      return state;
-    });
+    const state = get();
+    const currentDate = new Date().toISOString().split('T')[0]; // Data formatada (YYYY-MM-DD)
+    const newEntry = {
+      mood: {
+        id: state.mood.id, // Salvar o ID do emoji
+        image: state.mood.image,
+      },
+      emotions: state.emotions,
+      reasons: state.reasons,
+      note: state.note,
+      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    let storedData = await AsyncStorage.getItem('dayData');
+    storedData = storedData ? JSON.parse(storedData) : {};
+
+    if (!storedData[currentDate]) {
+      storedData[currentDate] = [];
+    }
+    storedData[currentDate].push(newEntry);
+
+    await AsyncStorage.setItem('dayData', JSON.stringify(storedData));
   },
 }));
 

@@ -1,9 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Modal } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-export default function SuccessModal({ visible, onClose }) {
+export default function SuccessModal({ visible }) {
+  const navigate = useNavigation();
   return (
-    <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
+    <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={() => {}}>
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           {/* Emoji Central */}
@@ -23,7 +25,7 @@ export default function SuccessModal({ visible, onClose }) {
           </Text>
 
           {/* Botão "Got it" */}
-          <TouchableOpacity style={styles.button} onPress={onClose}>
+          <TouchableOpacity style={styles.button} onPress={() => navigate.navigate('(tabs)')}>
             <Text style={styles.buttonText}>Got it</Text>
           </TouchableOpacity>
         </View>

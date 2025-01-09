@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useStore } from './store';
 
 // Mapeamento dos ícones de humor para os arquivos de imagem
 export const emojiMap = {
@@ -54,7 +55,7 @@ const MoodBar = ({ height, time, emoji }) => (
 // Função para obter a semana atual
 const getCurrentWeek = () => {
   const currentDate = new Date();
-  const startOfWeek = currentDate.getDate() - currentDate.getDay();
+  const startOfWeek = currentDate.getDate() - currentDate.getDay(); // Pega o domingo como início
   const week = [];
 
   for (let i = 0; i < 7; i++) {
@@ -71,7 +72,7 @@ const getCurrentWeek = () => {
 
 // Componente principal App
 export default function App() {
-  const [dayData, setDayData] = useState(null);
+  const [dayData, setDayData] = useState([]);
   const [weekData, setWeekData] = useState(getCurrentWeek());
 
   useEffect(() => {
@@ -82,17 +83,21 @@ export default function App() {
 
       if (data) {
         const parsedData = JSON.parse(data);
-        setDayData(parsedData);
+        const currentDate = new Date().toISOString().split('T')[0]; // Data atual
+        const todayData = parsedData[currentDate] || []; // Recupera os check-ins do dia atual
 
-        const updatedWeekData = weekData.map((day) => {
-          if (day.date === new Date(parsedData.date).getDate()) {
-            const moodEmoji = emojiMap[parsedData.mood.image] || emojiMap[13]; // Emoji neutro como fallback
-            return { ...day, emoji: moodEmoji };
-          }
-          return day;
-        });
+        if (todayData.length > 0) {
+          const latestMood = todayData[todayData.length - 1]; // Pega o último humor do dia
+          setDayData(todayData); // Atualiza o gráfico com todos os check-ins
+          const updatedWeekData = weekData.map((day) => {
+            if (day.date === new Date().getDate()) {
+              return { ...day, emoji: emojiMap[latestMood.mood.id] || emojiMap[13] };
+            }
+            return day;
+          });
 
-        setWeekData(updatedWeekData);
+          setWeekData(updatedWeekData);
+        }
       }
     };
 
@@ -139,16 +144,14 @@ export default function App() {
         <View style={styles.moodChartContainer}>
           <Text style={styles.moodChartTitle}>Mood chart</Text>
           <View style={styles.moodChart}>
-            {dayData &&
-              dayData.moodChart &&
-              dayData.moodChart.map((mood, index) => (
-                <MoodBar
-                  key={index}
-                  height={mood.height}
-                  time={mood.time}
-                  emoji={emojiMap[dayData.mood.image] || emojiMap[13]} // Emoji neutro como fallback
-                />
-              ))}
+            {dayData.map((mood, index) => (
+              <MoodBar
+                key={index}
+                height={100} // Altura fixa para o exemplo
+                time={mood.time}
+                emoji={emojiMap[mood.mood.id] || emojiMap[13]} // Exibe o emoji correto com fallback
+              />
+            ))}
           </View>
         </View>
       </ScrollView>
